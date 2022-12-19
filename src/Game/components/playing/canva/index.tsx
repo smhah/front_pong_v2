@@ -49,8 +49,6 @@ const Canva: FunctionComponent<Props> = (props) => {
     absoluteHeight = absoluteWidth / aspectRatio;
     relativeHeight = relativeWidth / aspectRatio;
     scalingRatio = relativeWidth / absoluteWidth;
-    console.log("props.height is " + props.height);
-    console.log("relativeHeight is " + relativeHeight);
     // if (relativeHeight > props.height) {
     //   console.log("ENTERED");
     //   absoluteHeight = getGameState().height;
@@ -93,6 +91,7 @@ const Canva: FunctionComponent<Props> = (props) => {
     const handlePlayerOneInput = (p5: p5Types) => {
       if(p5.keyIsDown(13) && props.socket.current.id !== getGameState().lastscored)
       {
+        console.log("PRESSED");
         props.socket.current.emit("playerInput", {input: "SPACE"});
       }
       if(p5.keyIsDown(87))
@@ -109,6 +108,7 @@ const Canva: FunctionComponent<Props> = (props) => {
     const handlePlayerTwoInput = (p5: p5Types) => {
         if(p5.keyIsDown(13) && props.socket.current.id !== getGameState().lastscored)
         {
+          console.log("PRESSED");
           props.socket.current.emit("playerInput", {input: "SPACE"});
         }
         if(p5.keyIsDown(87))
@@ -122,20 +122,17 @@ const Canva: FunctionComponent<Props> = (props) => {
     }
 
     const drawClickToStartText = (p5: p5Types) => {
-      if (getGameState().state === "scored" || getGameState().state === "init") {
-        //p5.text("HAHAHAHAHAHHAHAHA", props.width  3 / 2, props.height / 2);
+      if (getGameState().state === "endRound" || getGameState().state === "scored" || getGameState().state === "init") {
         p5.fill(0);
-        //p5.textSize((relativeWidth * 5) / 100);
         p5.textSize(((relativeWidth / 3 * 5) / 30 ));
         p5.textAlign(p5.CENTER);
         const scores = getGameState().scores;
         const scoresSum = scores[0] + scores[1];
-        //p5.text("HAHAHAHAHAHHAHAHA", props.width  3 / 2, props.height / 2);
         if(getGameState().players.indexOf(props.socket.current.id) == -1)
         {
           p5.text("Waiting for players to start the game",
-            (props.width) / 2, // relativeWidth / 2
-            props.height / 8 // 5 * (relativeHeight / 8)
+            (props.width) / 2,
+            props.height / 8
           );
         }
         else
@@ -144,8 +141,8 @@ const Canva: FunctionComponent<Props> = (props) => {
             props.socket.current.id === getGameState().lastscored
               ? "Waiting for oponent to start the game"
               : "Click enter to start the game ",
-            (props.width) / 2, // relativeWidth / 2
-            props.height / 8 // 5 * (relativeHeight / 8)
+            (props.width) / 2,
+            props.height / 8
           );
         }
       }
@@ -186,8 +183,8 @@ const Canva: FunctionComponent<Props> = (props) => {
       {
         p5.textSize((relativeHeight * 20) / 100);
         p5.text(getGameState().winner == props.socket.current.id ?
-            "Victory"
-            : "Defeat",
+            "Won"
+            : "Lost",
           relativeWidth / 2,
           relativeHeight / 2 + 50
         );
@@ -223,6 +220,7 @@ const Canva: FunctionComponent<Props> = (props) => {
         drawPaddleTwo(p5);
 
         //handle input
+        console.log("RUNNING");
           if (getGameState().players.indexOf(props.socket.current.id) === 0)
           handlePlayerOneInput(p5);
           if (getGameState().players.indexOf(props.socket.current.id) === 1)

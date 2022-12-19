@@ -24,9 +24,6 @@ const Play: FunctionComponent<Props> = (props) => {
         // function handleWindowResize() {
         //     setWindowSize(getWindowSize());
         // }
-        console.log("window width is : " + getWindowSize().innerWidth)
-        console.log("window height is :" + getWindowSize().innerHeight);
-    
         const setup = () => {
             if((ref.current as any).clientWidth > 1000)
                 setSectionWidth(1000);
@@ -35,8 +32,6 @@ const Play: FunctionComponent<Props> = (props) => {
             // setSectionHeight(sectionWidth / getGameState().aspectRatio);
             setSectionHeight((ref.current as any).clientHeight);
             // sectionWidth / getGameState().aspectRatio;
-            console.log("xwidth is " + sectionWidth);
-            console.log("xheight is " + sectionHeight);
         };
         setup();
         window.addEventListener('resize', setup);
