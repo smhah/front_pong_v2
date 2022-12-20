@@ -76,6 +76,8 @@ const Canva: FunctionComponent<Props> = (props) => {
     }
 
     const drawPaddleTwo = (p5: p5Types) => {
+      console.log("y1 is = " + getGameState().paddleOneY);
+      console.log("y2 is = " + getGameState().paddleTwoY);
         p5.rect(
             getGameState().paddleTwoX * scalingRatio,
             getGameState().paddleTwoY * scalingRatio,
@@ -91,7 +93,10 @@ const Canva: FunctionComponent<Props> = (props) => {
     const handlePlayerOneInput = (p5: p5Types) => {
       if(p5.keyIsDown(13) && props.socket.current.id !== getGameState().lastscored)
       {
-        console.log("PRESSED");
+        console.log("rooms = " + getGameState().players[0]);
+        console.log("player address = " + props.socket.current.id);
+        console.log("index = " + getGameState().players.indexOf(props.socket.current.id));
+        console.log("PRESSED ENTER");
         props.socket.current.emit("playerInput", {input: "SPACE"});
       }
       if(p5.keyIsDown(87))
@@ -108,7 +113,10 @@ const Canva: FunctionComponent<Props> = (props) => {
     const handlePlayerTwoInput = (p5: p5Types) => {
         if(p5.keyIsDown(13) && props.socket.current.id !== getGameState().lastscored)
         {
-          console.log("PRESSED");
+          console.log("rooms = " + getGameState().players[0]);
+          console.log("player address = " + props.socket.current.id);
+          console.log("index = " + getGameState().players.indexOf(props.socket.current.id));
+          console.log("PRESSED ENTER");
           props.socket.current.emit("playerInput", {input: "SPACE"});
         }
         if(p5.keyIsDown(87))
@@ -220,7 +228,6 @@ const Canva: FunctionComponent<Props> = (props) => {
         drawPaddleTwo(p5);
 
         //handle input
-        console.log("RUNNING");
           if (getGameState().players.indexOf(props.socket.current.id) === 0)
           handlePlayerOneInput(p5);
           if (getGameState().players.indexOf(props.socket.current.id) === 1)

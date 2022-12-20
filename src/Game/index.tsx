@@ -12,7 +12,8 @@ const Game = () => {
     const [searchParams] = useSearchParams();
 
     const spect = searchParams.get("spect");
-    console.log("spect is ==== " + spect);
+    const mod = searchParams.get("mod");
+    // const mod = "1";
     useEffect(()=> {
         socket.current = io("http://localhost:6001").on("connect", () => {
             if(spect)
@@ -23,10 +24,9 @@ const Game = () => {
             else
             {
                 console.log("player " + socket.current?.id + " trying to play");
-                socket.current?.emit("playerJoined");
+                socket.current?.emit("playerJoined", {input: mod});
             }
         socket.current?.on("gameState", (data: GameState) => {
-            console.log("game started");
             if (state == "waiting")
             {
                 setState("play");
