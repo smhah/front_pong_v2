@@ -27,8 +27,12 @@ interface GameState {
 
     scores: Array<number>;
     maxScore : number;
+    rounds: number;
+    roundsWin: Array<number>;
     winner : string;
     lastscored: string;
+
+    mod: string;
 }
 
 export type {GameState};

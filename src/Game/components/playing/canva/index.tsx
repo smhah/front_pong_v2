@@ -15,10 +15,12 @@ const Canva: FunctionComponent<Props> = (props) => {
   const [P5, setP5] = useState<p5Types | null>(null);
   const getGameState = (): GameState => props.gameState.current;
   
+  let newPropsWidth = props.width > 1000 ? 1000 : props.width;
   let aspectRatio: number = getGameState().aspectRatio;
 
   let absoluteWidth: number = getGameState().width;
-  let relativeWidth: number = props.width;
+
+  let relativeWidth: number = newPropsWidth;
 
   let absoluteHeight: number = absoluteWidth / aspectRatio; //
   let relativeHeight: number = relativeWidth / aspectRatio; // if any of these overflowas section dimensions, we scale based on the one that over flows
@@ -36,16 +38,17 @@ const Canva: FunctionComponent<Props> = (props) => {
   // SETUP
   let canvas: p5Types.Renderer;
   const setup = (p5: p5Types, canvasParentRef: Element) => {
+    console.log("room = " + getGameState().players[0]);
     setP5(p5);
     // if(relativeWidth<getGameStateData().width)
     canvas = p5
-      .createCanvas(props.width, relativeHeight)
+      .createCanvas(newPropsWidth, relativeHeight)
       .parent(canvasParentRef);
   };
 
   const onResize = (p5: p5Types) => {
     absoluteWidth = getGameState().width;
-    relativeWidth = props.width;
+    relativeWidth = newPropsWidth;
     absoluteHeight = absoluteWidth / aspectRatio;
     relativeHeight = relativeWidth / aspectRatio;
     scalingRatio = relativeWidth / absoluteWidth;
@@ -57,7 +60,7 @@ const Canva: FunctionComponent<Props> = (props) => {
     //   relativeWidth = relativeHeight * aspectRatio; // if any of these overflowas section dimensions, we scale based on the one that over flows
     //   scalingRatio = relativeHeight / absoluteHeight;
     // }
-    if (p5) p5.resizeCanvas(props.width, relativeHeight);
+    if (p5) p5.resizeCanvas(newPropsWidth, relativeHeight);
   };
 
     const drawBall = (p5 : p5Types) => {
@@ -76,8 +79,6 @@ const Canva: FunctionComponent<Props> = (props) => {
     }
 
     const drawPaddleTwo = (p5: p5Types) => {
-      console.log("y1 is = " + getGameState().paddleOneY);
-      console.log("y2 is = " + getGameState().paddleTwoY);
         p5.rect(
             getGameState().paddleTwoX * scalingRatio,
             getGameState().paddleTwoY * scalingRatio,
@@ -92,11 +93,7 @@ const Canva: FunctionComponent<Props> = (props) => {
 
     const handlePlayerOneInput = (p5: p5Types) => {
       if(p5.keyIsDown(13) && props.socket.current.id !== getGameState().lastscored)
-      {
-        console.log("rooms = " + getGameState().players[0]);
-        console.log("player address = " + props.socket.current.id);
-        console.log("index = " + getGameState().players.indexOf(props.socket.current.id));
-        console.log("PRESSED ENTER");
+      {;
         props.socket.current.emit("playerInput", {input: "SPACE"});
       }
       if(p5.keyIsDown(87))
@@ -113,10 +110,6 @@ const Canva: FunctionComponent<Props> = (props) => {
     const handlePlayerTwoInput = (p5: p5Types) => {
         if(p5.keyIsDown(13) && props.socket.current.id !== getGameState().lastscored)
         {
-          console.log("rooms = " + getGameState().players[0]);
-          console.log("player address = " + props.socket.current.id);
-          console.log("index = " + getGameState().players.indexOf(props.socket.current.id));
-          console.log("PRESSED ENTER");
           props.socket.current.emit("playerInput", {input: "SPACE"});
         }
         if(p5.keyIsDown(87))
@@ -132,15 +125,15 @@ const Canva: FunctionComponent<Props> = (props) => {
     const drawClickToStartText = (p5: p5Types) => {
       if (getGameState().state === "endRound" || getGameState().state === "scored" || getGameState().state === "init") {
         p5.fill(0);
-        p5.textSize(((relativeWidth / 3 * 5) / 30 ));
+        p5.textSize(((relativeWidth / 3 * 5) / 50 ));
         p5.textAlign(p5.CENTER);
         const scores = getGameState().scores;
         const scoresSum = scores[0] + scores[1];
         if(getGameState().players.indexOf(props.socket.current.id) == -1)
         {
           p5.text("Waiting for players to start the game",
-            (props.width) / 2,
-            props.height / 8
+            (newPropsWidth) / 2,
+            relativeHeight / 2.5
           );
         }
         else
@@ -149,8 +142,50 @@ const Canva: FunctionComponent<Props> = (props) => {
             props.socket.current.id === getGameState().lastscored
               ? "Waiting for oponent to start the game"
               : "Click enter to start the game ",
-            (props.width) / 2,
-            props.height / 8
+            (newPropsWidth) / 2,
+            relativeHeight / 2.5
+          );
+        }
+        if(getGameState().mod === "2" || getGameState().mod === "4")
+        {
+          p5.fill(0);
+          p5.textSize((relativeHeight * 20) / 600);
+          p5.textAlign(p5.CENTER);
+          p5.text(
+            "rounds  won ",
+            (relativeWidth / 2),
+            (relativeHeight / 16) * 14
+          );
+          p5.text(
+            getGameState().roundsWin[0],
+            (relativeWidth / 40) * 19,
+            (relativeHeight / 40) * 38
+          );
+
+          p5.text(
+            getGameState().roundsWin[1],
+            (relativeWidth / 40) * 21,
+            (relativeHeight / 40) * 38
+          );
+          p5.text(
+            "rounds for winning the game: " + getGameState().rounds,
+            (relativeWidth / 2),
+            relativeHeight / 17
+          );
+
+          p5.text(
+            "score for winning the round: " + getGameState().maxScore,
+            (relativeWidth / 2),
+            (relativeHeight / 4) * 3
+          );
+        }
+        else
+        {
+          p5.textSize((relativeHeight * 20) / 600);
+          p5.text(
+            "score for winning the game: " + getGameState().maxScore,
+            (relativeWidth / 2),
+            (relativeHeight / 4) * 3
           );
         }
       }
@@ -170,34 +205,100 @@ const Canva: FunctionComponent<Props> = (props) => {
         (relativeWidth / 16) * 9,
         relativeHeight / 4
       );
+
+      // p5.fill(0);
+      // p5.textSize((relativeHeight * 20) / 600);
+      // p5.textAlign(p5.CENTER);
+      // p5.text(
+      //   "rounds won ",
+      //   (relativeWidth / 2),
+      //   (relativeHeight / 16) * 14
+      // );
+      // p5.text(
+      //   getGameState().scores[0],
+      //   (relativeWidth / 16) * 16,
+      //   relativeHeight / 6
+      // );
+
+      // p5.text(
+      //   getGameState().scores[1],
+      //   (relativeWidth / 16) * 19,
+      //   relativeHeight / 6
+      // );
+      // p5.text(
+      //   "total rounds : " + getGameState().rounds,
+      //   (relativeWidth / 2),
+      //   relativeHeight / 17
+      // );
+
     };
   
     const drawDisconnectOrFinalOutcome = (p5: p5Types): boolean => {
-      if (getGameState().state === "disconnect")
+
+      let winner = getGameState().players.indexOf(getGameState().winner) + 1;
+      const loser = winner === 1 ? 2 : 1;
+
+      if (getGameState().state === "endGame" )
       {
-        p5.fill(0);
-  
-        p5.textAlign(p5.CENTER);
-      
-        p5.textSize((relativeHeight * 7) / 100);
-        p5.text(
-          "Opponenent disconnected, You win",
-          relativeWidth / 2,
-          relativeHeight / 2
-        );
-        return true;
-      } 
-      else if (getGameState().state === "endGame")
-      {
-        p5.textSize((relativeHeight * 20) / 100);
-        p5.text(getGameState().winner == props.socket.current.id ?
-            "Won"
-            : "Lost",
-          relativeWidth / 2,
-          relativeHeight / 2 + 50
-        );
+        if(getGameState().players.indexOf(props.socket.current.id) == -1)
+        {
+          p5.fill(0);
+    
+          p5.textAlign(p5.CENTER);
+        
+          p5.textSize((relativeHeight * 7) / 100);
+          p5.text(
+            "player " + winner + " wins",
+            relativeWidth / 2,
+            relativeHeight / 2
+          );
+        }
+        else
+        {
+          p5.fill(0);
+    
+          p5.textAlign(p5.CENTER);
+        
+          p5.textSize((relativeHeight * 7) / 100);
+          p5.text(getGameState().winner == props.socket.current.id ?
+              "Won"
+              : "Lost",
+            relativeWidth / 2,
+            relativeHeight / 2
+          );
+        }
         return true;
       }
+      else if (getGameState().state === "disconnect")
+      {
+        if(getGameState().players.indexOf(props.socket.current.id) == -1)
+        {
+          p5.fill(0);
+    
+          p5.textAlign(p5.CENTER);
+        
+          p5.textSize((relativeHeight * 7) / 100);
+          p5.text(
+            "player " + loser +  " disconnected , player " + winner + " wins",
+            relativeWidth / 2,
+            relativeHeight / 2
+          );
+        }
+        else
+        {
+          p5.fill(0);
+    
+          p5.textAlign(p5.CENTER);
+        
+          p5.textSize((relativeHeight * 7) / 100);
+          p5.text(
+            "Opponenent disconnected, You win",
+            relativeWidth / 2,
+            relativeHeight / 2
+          );
+        }
+        return true;
+      } 
       return false;
     }
 
@@ -214,7 +315,7 @@ const Canva: FunctionComponent<Props> = (props) => {
         // if(getGameState().spectators.indexOf(props.socket.current.id) > -1)
         //   isSpect = true;
         initCanva(p5);
-    
+        p5.background('#33FFE9');
         if(drawDisconnectOrFinalOutcome(p5)) return;
 
         drawClickToStartText(p5);
@@ -232,7 +333,6 @@ const Canva: FunctionComponent<Props> = (props) => {
           handlePlayerOneInput(p5);
           if (getGameState().players.indexOf(props.socket.current.id) === 1)
           handlePlayerTwoInput(p5);
-
     }
     return (
         <div>//

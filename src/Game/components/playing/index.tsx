@@ -26,9 +26,13 @@ const Play: FunctionComponent<Props> = (props) => {
         // }
         const setup = () => {
             if((ref.current as any).clientWidth > 1000)
+            {
                 setSectionWidth(1000);
+            }
             else
+            {
                 setSectionWidth((ref.current as any).clientWidth);
+            }
             // setSectionHeight(sectionWidth / getGameState().aspectRatio);
             setSectionHeight((ref.current as any).clientHeight);
             // sectionWidth / getGameState().aspectRatio;
